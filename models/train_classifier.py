@@ -36,6 +36,7 @@ def load_data(database_filepath):
     # get category names
     category_names = df.drop(['message', 'original', 'id', 'genre'], axis=1).columns
     
+    
     return X, Y, category_names
 
 
