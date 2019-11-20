@@ -66,7 +66,7 @@ def clean_data(df):
     df = pd.merge(df, categories, right_index=True, left_index=True)
     
     # drop duplicates
-    df.drop_duplicates(subset ='original', keep=False, inplace=True) 
+    df.drop_duplicates(subset='original', keep=False, inplace=True) 
 
     return df
 

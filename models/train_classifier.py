@@ -33,7 +33,7 @@ def load_data(database_filepath):
     
     # split data values into separate lists
     X = df.message.values
-    Y = df.drop(['message', 'origin', 'id', 'genre'], axis=1).values
+    Y = df.drop(['message', 'original', 'id', 'genre'], axis=1).values
     
     # get category names
     category_names = df.drop(['message', 'original', 'id', 'genre'], axis=1).columns
@@ -55,7 +55,7 @@ def tokenize(text):
 
 
 def build_model():
-    pipeline = Pipeline([
+    model = Pipeline([
             ('vect', CountVectorizer(tokenizer=tokenize, ngram_range=(1,2), max_features=5000, max_df=0.75)),
             ('tfidf', TfidfTransformer(use_idf=False)),
             ('clf', MultiOutputClassifier(RandomForestClassifier()))
@@ -65,7 +65,11 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    pass
+    Y_pred = model.predict(X_test)
+    
+    for cat in range(len(Y_pred.T)):
+        class_report = classification_report(Y_test.T[cat], Y_pred.T[cat])
+        print("Classification report:", category_names[cat], "\n", class_report)
 
 
 def save_model(model, model_filepath):
