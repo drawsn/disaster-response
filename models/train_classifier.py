@@ -23,17 +23,32 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
 def load_data(database_filepath):
-    # load data from database
+    # create database engine
     engine = create_engine('sqlite:///' + database_filepath)
     
+    # load data from database
     df = pd.read_sql_table('messages', engine)
     
+    # split data values into separate lists
     X = df.message.values
     Y = df.drop(['message', 'origin', 'id', 'genre'], axis=1).values
+    
+    # get category names
+    category_names = df.drop(['message', 'original', 'id', 'genre'], axis=1).columns
+    
+    return X, Y, category_names
 
 
 def tokenize(text):
-    pass
+    tokens = word_tokenize(text)
+    lemmatizer = WordNetLemmatizer()
+    
+    clean_tokens = []
+    for token in tokens:
+        clean_tok = lemmatizer.lemmatize(token).lower().strip()
+        clean_tokens.append(clean_tok)
+        
+    return clean_tokens
 
 
 def build_model():
