@@ -22,6 +22,8 @@ from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
+from sklearn.externals import joblib
+
 def load_data(database_filepath):
     # create database engine
     engine = create_engine('sqlite:///' + database_filepath)
@@ -53,7 +55,13 @@ def tokenize(text):
 
 
 def build_model():
-    pass
+    pipeline = Pipeline([
+            ('vect', CountVectorizer(tokenizer=tokenize, ngram_range=(1,2), max_features=5000, max_df=0.75)),
+            ('tfidf', TfidfTransformer(use_idf=False)),
+            ('clf', MultiOutputClassifier(RandomForestClassifier()))
+        ])
+    
+    return model
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
@@ -61,7 +69,8 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
-    pass
+    # Output a pickle file for the model
+    joblib.dump(model, model_filepath)
 
 
 def main():
