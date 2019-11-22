@@ -43,15 +43,31 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
-    tokens = word_tokenize(text)
+    '''
+    processes text messages and creates cleaned word tokens
+    
+    INPUT:
+    text - string to tokenize
+            
+    OUTPUT:
+    tokens - list of strings, containing all words from the inputed text
+    ''' 
+    # create lemmatizer
     lemmatizer = WordNetLemmatizer()
     
-    clean_tokens = []
-    for token in tokens:
-        clean_tok = lemmatizer.lemmatize(token).lower().strip()
-        clean_tokens.append(clean_tok)
+    # load english stop words
+    stop_words = stopwords.words("english")    
+    
+    # remove punctuation and convert everything to lower case
+    text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
+    
+    # tokenize text
+    tokens = word_tokenize(text)
+    
+    # lemmatize and remove stop words
+    tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words]
         
-    return clean_tokens
+    return tokens
 
 
 def build_model():
@@ -60,6 +76,8 @@ def build_model():
             ('tfidf', TfidfTransformer(use_idf=False)),
             ('clf', MultiOutputClassifier(RandomForestClassifier()))
         ])
+    
+    # add gridsearchCV
     
     return model
 
