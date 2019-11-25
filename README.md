@@ -27,7 +27,7 @@ The python libraries used are:
 
 
 ## How to start <a name="howto"></a>
-Use the following script from the main directory to create the prediction model used by the app.
+Run the first 2 scripts from the main directory to create the prediction model used by the app.
 
 1. Create a database based on a dataset of messages:
 

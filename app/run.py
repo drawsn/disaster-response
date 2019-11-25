@@ -8,6 +8,8 @@ from nltk.tokenize import word_tokenize
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
+from plotly.graph_objs import Pie
+import plotly.graph_objs as go
 from sklearn.externals import joblib
 from sqlalchemy import create_engine
 
@@ -32,25 +34,62 @@ df = pd.read_sql_table('messages', engine)
 # load model
 model = joblib.load("../models/classifier.pkl")
 
-
-# index webpage displays cool visuals and receives user input text for model
-@app.route('/')
-@app.route('/index')
-def index():
+def create_visual_categories_bar(df):
+    '''
+    create a bar chart containing all categories and their respective occurence
     
+    INPUT:
+    df - dataframe: pandas dataframe containg the message and category data
+            
+    OUTPUT:
+    graph - dictionary: dictionary containing the plotly structure
+    '''    
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
+    cat_counts = df.iloc[:, 4:].sum()
+    cat_names = list(cat_counts.index)
+    
+    # create visuals
+    graph = {
+            'data': [
+                Bar(
+                    x=cat_names,
+                    y=cat_counts
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Categories',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Category"
+                }
+            }
+        }
+    
+    return graph
+
+def create_visual_genre_pie(df):
+    '''
+    create a pie chart containing all genres and their respective occurence
+    
+    INPUT:
+    df - dataframe: pandas dataframe containg the message and category data
+            
+    OUTPUT:
+    graph - dictionary: dictionary containing the plotly structure
+    '''       
+    # extract data needed for visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
     
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
-    graphs = [
-        {
+    graph = {
             'data': [
-                Bar(
-                    x=genre_names,
-                    y=genre_counts
+                Pie(
+                    labels=genre_names,
+                    values=genre_counts
                 )
             ],
 
@@ -64,7 +103,17 @@ def index():
                 }
             }
         }
-    ]
+    
+    
+    return graph
+
+
+# index webpage displays cool visuals and receives user input text for model
+@app.route('/')
+@app.route('/index')
+def index():
+    # create visuals
+    graphs = [create_visual_categories_bar(df), create_visual_genre_pie(df)]
     
     # encode plotly graphs in JSON
     ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]

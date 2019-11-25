@@ -38,7 +38,7 @@ def load_data(messages_filepath, categories_filepath):
     categories = pd.read_csv(categories_filepath)
 
     # merge datasets
-    df = pd.merge(messages, categories, on='id', how='left')
+    df = pd.merge(messages, categories, on='id')
     
     return df
 
@@ -85,7 +85,7 @@ def clean_data(df):
     df = pd.merge(df, categories, right_index=True, left_index=True)
     
     # drop duplicates
-    df.drop_duplicates(subset='original', keep=False, inplace=True) 
+    df.drop_duplicates(subset='message', inplace=True) 
 
     return df
 

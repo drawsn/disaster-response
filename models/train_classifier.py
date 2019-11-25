@@ -102,8 +102,7 @@ def build_model():
     parameters = {
             'vect__ngram_range': ((1, 1), (1, 2)),
             'vect__max_df': (0.5, 0.75, 1.0),
-            'vect__max_features': (None, 5000, 10000),
-            'tfidf__use_idf': (True, False),
+            'vect__max_features': (None, 5000, 10000)
         }
 
     # create gridsearch object
