@@ -2,13 +2,14 @@ import sys
 
 # import libraries
 import nltk
-nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger'])
+nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger', 'stopwords'])
 
 import re
 import numpy as np
 import pandas as pd
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
 from sqlalchemy import create_engine
 
 from sklearn.metrics import confusion_matrix, classification_report
@@ -71,13 +72,23 @@ def tokenize(text):
 
 
 def build_model():
-    model = Pipeline([
+    # create pipeline object
+    pipeline = Pipeline([
             ('vect', CountVectorizer(tokenizer=tokenize, ngram_range=(1,2), max_features=5000, max_df=0.75)),
             ('tfidf', TfidfTransformer(use_idf=False)),
             ('clf', MultiOutputClassifier(RandomForestClassifier()))
         ])
     
-    # add gridsearchCV
+    # define gridsearch parameter range
+    parameters = {
+            'vect__ngram_range': ((1, 1), (1, 2)),
+            'vect__max_df': (0.5, 0.75, 1.0),
+            'vect__max_features': (None, 5000, 10000),
+            'tfidf__use_idf': (True, False),
+        }
+
+    # create gridsearch object
+    model = GridSearchCV(pipeline, param_grid=parameters)
     
     return model
 
@@ -100,7 +111,7 @@ def main():
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=17)
         
         print('Building model...')
         model = build_model()
