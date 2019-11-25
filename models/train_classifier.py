@@ -26,6 +26,17 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.externals import joblib
 
 def load_data(database_filepath):
+    '''
+    load the relevant data from the specified database filepath and return the appropriate dataframes and category names.
+    
+    INPUT:
+    database_filepath - string: path to the database file
+            
+    OUTPUT:
+    X - dataframe: contains the messages data
+    Y - dataframe: contains the category data
+    category_names - list of strings: labels of the message categories
+    '''
     # create database engine
     engine = create_engine('sqlite:///' + database_filepath)
     
@@ -39,7 +50,6 @@ def load_data(database_filepath):
     # get category names
     category_names = df.drop(['message', 'original', 'id', 'genre'], axis=1).columns
     
-    
     return X, Y, category_names
 
 
@@ -48,10 +58,10 @@ def tokenize(text):
     processes text messages and creates cleaned word tokens
     
     INPUT:
-    text - string to tokenize
+    text - string: text to tokenize
             
     OUTPUT:
-    tokens - list of strings, containing all words from the inputed text
+    tokens - list of strings: containing all words from the inputed text
     ''' 
     # create lemmatizer
     lemmatizer = WordNetLemmatizer()
@@ -72,9 +82,18 @@ def tokenize(text):
 
 
 def build_model():
+    '''
+    build the machine learning model
+    
+    INPUT:
+    NONE
+            
+    OUTPUT:
+    model - gridsearch object: a machine learninng model in the form of a gridsearchCV object
+    '''     
     # create pipeline object
     pipeline = Pipeline([
-            ('vect', CountVectorizer(tokenizer=tokenize, ngram_range=(1,2), max_features=5000, max_df=0.75)),
+            ('vect', CountVectorizer(tokenizer=tokenize)),
             ('tfidf', TfidfTransformer(use_idf=False)),
             ('clf', MultiOutputClassifier(RandomForestClassifier()))
         ])
@@ -94,6 +113,18 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    '''
+    evaluate the model and ouput a classification report for each category
+    
+    INPUT:
+    model - ML model: the fitted machine learning model
+    X_test - dataframe: the testdata category results
+    Y_test - dataframe: the testdata messages
+    category_names: list of strings: labels of the message categories
+            
+    OUTPUT:
+    print of classification reports
+    '''     
     Y_pred = model.predict(X_test)
     
     for cat in range(len(Y_pred.T)):
@@ -102,7 +133,17 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
-    # Output a pickle file for the model
+    '''
+    function to save a ML model as pickle file to the inputed filepath.
+    
+    INPUT:
+    model - ML model: the fitted machine learning model
+    model_filepath - string: filepath where the model should be saved
+            
+    OUTPUT:
+    saves the model file
+    '''      
+    # save the final model as a pickle file
     joblib.dump(model, model_filepath)
 
 

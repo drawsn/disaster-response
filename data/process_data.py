@@ -21,6 +21,16 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
 
 def load_data(messages_filepath, categories_filepath):
+    '''
+    reads message and category data from specified csv files to pandas dataframes. Then it converts and merges them to a single dataframe.
+    
+    INPUT:
+    messages_filepath - string: path to the messages csv file
+    categories_filepath - string: path to the categories csv file
+            
+    OUTPUT:
+    df - dataframe: pandas dataframe containg the message and category data
+    '''
     # load messages dataset
     messages = pd.read_csv(messages_filepath)
     
@@ -34,6 +44,15 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+    '''
+    cleans and transforms the dataframe to create the appropriate category columns.
+    
+    INPUT:
+    df - dataframe: pandas dataframe containg the message and category data
+            
+    OUTPUT:
+    df - dataframe: cleaned and transformed dataframe
+    '''    
     # create a dataframe of the 36 individual category columns
     categories = df.categories.str.split(';', expand=True)
     
@@ -72,6 +91,15 @@ def clean_data(df):
 
 
 def save_data(df, database_filepath):
+    '''
+    save the created dataframe to a sql database.
+    
+    INPUT:
+    df - dataframe: pandas dataframe containg the message and category data
+            
+    OUTPUT:
+    sqlite table containg the data from the inputed dataframe
+    '''        
     # connect to db
     path = 'sqlite:///' + database_filepath
     engine = create_engine(path)
